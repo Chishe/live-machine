@@ -7,17 +7,19 @@ import clsx from "clsx";
 type RowData = {
   process: string;
   mode: string;
-  xstatus: string; // ISO datetime
+  xstatus: string;
   details: string;
   plc: string;
   continue: string;
   loss: string;
+  action?: string; // เพิ่มฟิลด์ action
 };
 
 export default function NgTable() {
   const [data, setData] = useState<RowData[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>("");
 
+  // ดึงข้อมูลจาก API
   const fetchData = async () => {
     try {
       const res = await axios.get("/api/ng-status");
@@ -32,6 +34,7 @@ export default function NgTable() {
           plc: row.plc,
           continue: row.continue,
           loss: row.loss,
+          action: row.action, // เพิ่ม action
         })
       );
 
@@ -65,12 +68,36 @@ export default function NgTable() {
     ? data.filter((row) => toDateOnly(row.xstatus) === selectedDate)
     : data;
 
+  // ฟังก์ชันที่ใช้จัดการการแก้ไขข้อมูล
+  const handleInputChange = async (
+    idx: number,
+    field: "details" | "action", 
+    value: string
+  ) => {
+    const newData = [...data];
+    const row = newData[idx];
+    row[field] = value; // แก้ไขค่าในฟิลด์ที่ถูกเลือก
+    setData(newData); // อัปเดต state ให้แสดงค่าที่เปลี่ยนแปลงทันที
+
+    try {
+      // ส่งข้อมูลที่อัปเดตไปที่ backend
+      await axios.put("/api/ng-status/update", {
+        mc: row.process,
+        field,
+        value,
+      });
+      console.log("Updated successfully");
+    } catch (err) {
+      console.error("Failed to update:", err);
+    }
+  };
+
   return (
     <div className="rounded-xl bg-[#3b82f6]">
       <div className="mt-4 space-y-6 p-4">
         <div className="flex flex-row items-center justify-start mt-4 space-x-4">
           <h1 className="text-2xl font-bold text-center text-white">
-            Summary Andon Record
+            Summary Andon Record :
           </h1>
 
           <input
@@ -114,9 +141,23 @@ export default function NgTable() {
                     {row.mode}
                   </td>
                   <td className="p-4">{formatDateDisplay(row.xstatus)}</td>
-                  <td className="p-4">{row.details}</td>
+                  <td className="p-4">
+                    <input
+                      type="text"
+                      value={row.details}
+                      onChange={(e) => handleInputChange(idx, "details", e.target.value)}
+                      className="p-2 rounded-md border border-gray-300"
+                    />
+                  </td>
                   <td className="p-4">{row.plc}</td>
-                  <td className="p-4">-</td>
+                  <td className="p-4">
+                    <input
+                      type="text"
+                      value={row.action || ""}
+                      onChange={(e) => handleInputChange(idx, "action", e.target.value)}
+                      className="p-2 rounded-md border border-gray-300"
+                    />
+                  </td>
                   <td className="p-4">{row.continue}</td>
                   <td className="p-4">{row.loss}</td>
                 </tr>
@@ -132,7 +173,6 @@ export default function NgTable() {
   );
 }
 
-
 function parseThaiDateToISO(dateStr: string): string {
-  return dateStr;
+  return dateStr; // ทำให้รองรับวันที่ในฟอร์แมตไทย
 }

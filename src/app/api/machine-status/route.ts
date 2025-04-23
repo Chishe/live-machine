@@ -33,6 +33,16 @@ export async function GET() {
       remaining_time: "00 Min 00 Sec",
       next_model: "CC",
     },
+    {
+        id: 4,
+        process: "Staging",
+        mode: "Normal",
+        machine_name: "Forming M/C #5",
+        xstatus: "Complete lot:54% (12000/20000)",
+        status: "Abnormal",
+        remaining_time: "00 Min 00 Sec",
+        next_model: "CC",
+      }
   ];
 
   return NextResponse.json(mockData);

@@ -24,20 +24,59 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+.wrap-original-transform {
+  display: flex;
+  gap: 10%;
+  justify-content: center;
+  margin: 50px auto;
+}
 
-.transform-style-preserve-3d {
+.original-transform {
+  position: relative;
   transform-style: preserve-3d;
+  width: 200px;
+  height: 200px;
+  margin: 20px;
 }
 
-.animate-spin-cube {
-  animation: spinCube 10s infinite linear;
+.front, .back, .rightSide, .leftSide, .top, .bottom {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid #aaa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  color: #555;
 }
 
-@keyframes spinCube {
-  0% {
-    transform: rotateX(0deg) rotateY(0deg);
-  }
-  100% {
-    transform: rotateX(360deg) rotateY(360deg);
-  }
+/* การจัดตำแหน่งแต่ละด้าน */
+.front    { transform: translateZ(100px); }
+.back     { transform: rotateY(180deg) translateZ(100px); }
+.rightSide { transform: rotateY(90deg) translateZ(100px); }
+.leftSide  { transform: rotateY(-90deg) translateZ(100px); }
+.top      { transform: rotateX(90deg) translateZ(100px); }
+.bottom   { transform: rotateX(-90deg) translateZ(100px); }
+
+/* สำหรับกล่องที่เป็นลูกบาศก์ */
+.original-transform.cube {
+  transform: rotateX(-10deg) rotateY(-25deg);
+}
+
+/* สำหรับกล่องที่เป็นสี่เหลี่ยมผืนผ้า */
+.original-transform.rectangle {
+  width: 300px;  /* ความยาว 300px */
+  height: 200px; /* ความสูง 200px */
+}
+
+.original-transform.rectangle .front,
+.original-transform.rectangle .back,
+.original-transform.rectangle .rightSide,
+.original-transform.rectangle .leftSide,
+.original-transform.rectangle .top,
+.original-transform.rectangle .bottom {
+  width: 300px;
+  height: 200px;
 }

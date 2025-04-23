@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -37,27 +37,31 @@ export default function LiveTable() {
   }, [apiUrl]);
 
   return (
-    <div className="rounded-xl bg-[#3b82f6]">
-    <div className="mt-4 space-y-6 p-4">
-      <select
-        value={apiUrl}
-        onChange={(e) => setApiUrl(e.target.value)}
-        className="p-2 rounded-md border border-gray-300"
-      >
-        {API_OPTIONS.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
+    <div className="rounded-xl bg-[#3b82f6] p-4">
+      {/* Header Row */}
+      <div className="flex items-center justify-start mb-4">
+        <h1 className="text-2xl font-bold text-white">Live Monitoring:</h1>
+        <select
+          value={apiUrl}
+          onChange={(e) => setApiUrl(e.target.value)}
+          className="p-2 rounded-md border border-gray-300"
+        >
+          {API_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label}
+            </option>
+          ))}
+        </select>
+      </div>
 
+      {/* Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden text-center">
-          <thead className="bg-gray-100 text-left text-sm font-semibold text-gray-600">
+          <thead className="bg-gray-100 text-sm font-semibold text-gray-600">
             <tr>
-              <th className="p-4 text-center">Process</th>
-              <th className="p-4 text-center">Mode</th>
-              <th className="p-4 text-center">Status</th>
+              <th className="p-4">Process</th>
+              <th className="p-4">Mode</th>
+              <th className="p-4">Status</th>
             </tr>
           </thead>
           <tbody className="text-sm text-gray-800">
@@ -68,7 +72,8 @@ export default function LiveTable() {
                   className={clsx("p-4 font-semibold", {
                     "text-red-500": row.mode === "Andon NG",
                     "text-green-500": row.mode === "Normal",
-                    "text-gray-500": row.mode !== "Normal" && row.mode !== "Andon NG",
+                    "text-gray-500":
+                      row.mode !== "Normal" && row.mode !== "Andon NG",
                   })}
                 >
                   {row.mode}
@@ -78,9 +83,11 @@ export default function LiveTable() {
             ))}
           </tbody>
         </table>
-        {data.length === 0 && <div className="text-center text-gray-400 mt-4">No data found</div>}
+
+        {data.length === 0 && (
+          <div className="text-center text-gray-400 mt-4">No data found</div>
+        )}
       </div>
-    </div>
     </div>
   );
 }

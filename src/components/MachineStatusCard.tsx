@@ -1,6 +1,6 @@
 import { CiFaceMeh, CiFaceSmile, CiFaceFrown } from "react-icons/ci";
 import clsx from "clsx";
-
+import Machine from "./machine";
 type MachineProps = {
   machine_name: string;
   status: "Normal" | "Changeover" | "Abnormal";
@@ -30,8 +30,9 @@ export default function MachineStatusCard({
   };
 
   return (
-    <div className="mt-18 p-4 rounded-xl bg-[#3b82f6]">
-      <div className="p-6 bg-white rounded-sm shadow-md space-y-4 w-full">
+    <div className="mt-28 p-4 rounded-xl bg-[#3b82f6] w-full">
+      <div className="p-6 bg-white rounded-sm shadow-md">
+        <Machine />
         <h1
           className={clsx(
             "text-2xl font-bold flex items-center gap-2",

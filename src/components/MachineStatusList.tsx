@@ -28,7 +28,7 @@ export default function MachineStatusList() {
   if (!data.length) return <div>Loading...</div>;
 
   return (
-    <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3 mt-12">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {data.map((machine, idx) => (
         <MachineStatusCard key={idx} {...machine} />
       ))}
