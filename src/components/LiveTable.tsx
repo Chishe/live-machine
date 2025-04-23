@@ -14,21 +14,43 @@ const API_OPTIONS = [
   { label: "Forming M/C #1", value: "/api/machine-status-1" },
   { label: "Forming M/C #2", value: "/api/machine-status-2" },
   { label: "Forming M/C #3", value: "/api/machine-status-3" },
+  { label: "Forming M/C #5", value: "/api/machine-status-5" },
 ];
+
+function formatStagingStatus(process: string, rawStatus: string): string {
+  const trimmedStatus = rawStatus.trim(); // 🔧 แก้ตรงนี้
+  if (process === "Staging" && !isNaN(parseInt(trimmedStatus))) {
+    const current = parseInt(trimmedStatus);
+    const total = 20000;
+    const percent = Math.floor((current / total) * 100);
+    return `Complete lot: ${percent}% (${current}/20000)`; // ✅ ตามที่ต้องการ
+  }
+  return rawStatus;
+}
+
+
 
 export default function LiveTable() {
   const [apiUrl, setApiUrl] = useState(API_OPTIONS[0].value);
   const [data, setData] = useState<RowData[]>([]);
 
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, 5000);
+    return () => clearInterval(interval);
+  }, [apiUrl]);
+  
   const fetchData = async () => {
     try {
       const res = await axios.get(apiUrl);
+      console.log("Fetched data:", res.data); // 🔍 log ค่า status ดูด้วย
       setData(res.data);
     } catch (err) {
       console.error("API fetch error", err);
       setData([]);
     }
   };
+  
 
   useEffect(() => {
     fetchData();
@@ -38,13 +60,13 @@ export default function LiveTable() {
 
   return (
     <div className="rounded-xl bg-[#3b82f6] p-4">
-      {/* Header Row */}
+      {/* Header */}
       <div className="flex items-center justify-start mb-4">
         <h1 className="text-2xl font-bold text-white">Live Monitoring:</h1>
         <select
           value={apiUrl}
           onChange={(e) => setApiUrl(e.target.value)}
-          className="p-2 rounded-md border border-gray-300"
+          className="ml-4 p-2 rounded-md border border-gray-300"
         >
           {API_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -78,7 +100,9 @@ export default function LiveTable() {
                 >
                   {row.mode}
                 </td>
-                <td className="p-4">{row.status}</td>
+                <td className="p-4">
+                  {formatStagingStatus(row.process, row.status)}
+                </td>
               </tr>
             ))}
           </tbody>

@@ -4,7 +4,7 @@ import { pool } from '@/lib/db';
 export async function GET() {
   try {
     const res = await pool.query(`
-      SELECT * FROM machine_status_3
+      SELECT * FROM machine_status_5
       WHERE process IN ('Meterial Insertion', 'Forming', 'Staging')
       ORDER BY created_at DESC
       LIMIT 3

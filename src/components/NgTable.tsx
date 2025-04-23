@@ -1,4 +1,6 @@
 "use client";
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';  // อย่าลืมนำเข้า CSS ด้วย
 
 import { useEffect, useState } from "react";
 import axios from "axios";
@@ -7,19 +9,18 @@ import clsx from "clsx";
 type RowData = {
   process: string;
   mode: string;
-  xstatus: string;
+  date: string;
   details: string;
   plc: string;
   continue: string;
   loss: string;
-  action?: string; // เพิ่มฟิลด์ action
+  action?: string;
 };
 
 export default function NgTable() {
   const [data, setData] = useState<RowData[]>([]);
   const [selectedDate, setSelectedDate] = useState<string>("");
 
-  // ดึงข้อมูลจาก API
   const fetchData = async () => {
     try {
       const res = await axios.get("/api/ng-status");
@@ -29,12 +30,12 @@ export default function NgTable() {
         (row: any): RowData => ({
           process: row.mc,
           mode: row.mode,
-          xstatus: parseThaiDateToISO(row.date),
+          date: parseThaiDateToISO(row.date),
           details: row.details,
           plc: row.plc,
-          continue: row.continue,
+          continue: parseThaiDateToISO(row.continue),
           loss: row.loss,
-          action: row.action, // เพิ่ม action
+          action: row.action,
         })
       );
 
@@ -65,33 +66,33 @@ export default function NgTable() {
   };
 
   const filteredData = selectedDate
-    ? data.filter((row) => toDateOnly(row.xstatus) === selectedDate)
+    ? data.filter((row) => toDateOnly(row.date) === selectedDate)
     : data;
 
-  // ฟังก์ชันที่ใช้จัดการการแก้ไขข้อมูล
-  const handleInputChange = async (
-    idx: number,
-    field: "details" | "action", 
-    value: string
-  ) => {
-    const newData = [...data];
-    const row = newData[idx];
-    row[field] = value; // แก้ไขค่าในฟิลด์ที่ถูกเลือก
-    setData(newData); // อัปเดต state ให้แสดงค่าที่เปลี่ยนแปลงทันที
-
-    try {
-      // ส่งข้อมูลที่อัปเดตไปที่ backend
-      await axios.put("/api/ng-status/update", {
-        mc: row.process,
-        field,
-        value,
-      });
-      console.log("Updated successfully");
-    } catch (err) {
-      console.error("Failed to update:", err);
-    }
-  };
-
+    const handleInputChange = async (
+      idx: number,
+      field: "details" | "action",
+      value: string
+    ) => {
+      const newData = [...data];
+      const row = newData[idx];
+      row[field] = value;
+      setData(newData);
+    
+      try {
+        await axios.put("/api/ng-status/update", {
+          mc: row.process,
+          field,
+          value,
+        });
+        toast.success("Updated successfully"); 
+      } catch (err) {
+        console.error("Failed to update:", err);
+        toast.error("Update failed");
+      }
+    };
+    
+    
   return (
     <div className="rounded-xl bg-[#3b82f6]">
       <div className="mt-4 space-y-6 p-4">
@@ -112,7 +113,12 @@ export default function NgTable() {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="pace-y-2 flex-grow overflow-y-[500px] 
+        [&::-webkit-scrollbar]:w-1 
+        [&::-webkit-scrollbar-track]:bg-gray-100 
+        [&::-webkit-scrollbar-thumb]:bg-gray-300 
+        dark:[&::-webkit-scrollbar-track]:bg-[#151c34] 
+        dark:[&::-webkit-scrollbar-thumb]:bg-[#aeaeb7]">
           <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden text-center">
             <thead className="bg-gray-100 text-left text-sm font-semibold text-gray-600">
               <tr>
@@ -140,7 +146,7 @@ export default function NgTable() {
                   >
                     {row.mode}
                   </td>
-                  <td className="p-4">{formatDateDisplay(row.xstatus)}</td>
+                  <td className="p-4">{formatDateDisplay(row.date)}</td>
                   <td className="p-4">
                     <input
                       type="text"
@@ -158,7 +164,7 @@ export default function NgTable() {
                       className="p-2 rounded-md border border-gray-300"
                     />
                   </td>
-                  <td className="p-4">{row.continue}</td>
+                  <td className="p-4">{formatDateDisplay(row.continue)}</td>
                   <td className="p-4">{row.loss}</td>
                 </tr>
               ))}
@@ -169,10 +175,12 @@ export default function NgTable() {
           )}
         </div>
       </div>
+      <ToastContainer />
     </div>
+    
   );
 }
 
 function parseThaiDateToISO(dateStr: string): string {
-  return dateStr; // ทำให้รองรับวันที่ในฟอร์แมตไทย
+  return dateStr;
 }

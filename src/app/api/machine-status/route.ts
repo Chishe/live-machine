@@ -1,49 +1,36 @@
-// app/api/machine-status/route.ts
 import { NextResponse } from "next/server";
+import { Pool } from "pg";
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+});
 
 export async function GET() {
-  const mockData = [
-    {
-      id: 1,
-      process: "Meterial Insertion",
-      mode: "Normal",
-      machine_name: "Forming M/C #1",
-      xstatus: "Remaining 54 mins",
-      status: "Changeover",
-      remaining_time: "08 Min 22 Sec",
-      next_model: "AA",
-    },
-    {
-      id: 2,
-      process: "Forming",
-      mode: "Andon NG",
-      machine_name: "Forming M/C #2",
-      xstatus: "Alarm Code:XXXX",
-      status: "Normal",
-      remaining_time: "12 Min 10 Sec",
-      next_model: "BB",
-    },
-    {
-      id: 3,
-      process: "Staging",
-      mode: "Normal",
-      machine_name: "Forming M/C #3",
-      xstatus: "Complete lot:54% (12000/20000)",
-      status: "Abnormal",
-      remaining_time: "00 Min 00 Sec",
-      next_model: "CC",
-    },
-    {
-        id: 4,
-        process: "Staging",
-        mode: "Normal",
-        machine_name: "Forming M/C #5",
-        xstatus: "Complete lot:54% (12000/20000)",
-        status: "Abnormal",
-        remaining_time: "00 Min 00 Sec",
-        next_model: "CC",
-      }
-  ];
+  try {
+    const { rows } = await pool.query(`
+      SELECT DISTINCT ON (machine_name)
+        id, machine_name, mode, status, remaining_time, next_model
+      FROM machine_status
+      WHERE machine_name IN (
+        'Forming M/C #1',
+        'Forming M/C #2',
+        'Forming M/C #3',
+        'Forming M/C #5'
+      )
+      ORDER BY machine_name, created_at DESC;
+    `);
 
-  return NextResponse.json(mockData);
+    const formatted = rows.map((item) => {
+      const [min, sec] = item.remaining_time.split(":");
+      return {
+        ...item,
+        remaining_time: `${parseInt(min)} Min ${parseInt(sec)} Sec`,
+      };
+    });
+
+    return NextResponse.json(formatted);
+  } catch (err) {
+    console.error("DB Error:", err);
+    return NextResponse.json({ error: "Failed to fetch data" }, { status: 500 });
+  }
 }
