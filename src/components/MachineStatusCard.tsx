@@ -1,11 +1,14 @@
 import { CiFaceMeh, CiFaceSmile, CiFaceFrown } from "react-icons/ci";
+import { GrPlay } from "react-icons/gr";
 import clsx from "clsx";
 import Machine from "./machine";
+
 type MachineProps = {
   machine_name: string;
   status: "Normal" | "Changeover" | "Abnormal";
   remaining_time: string;
   next_model: string;
+  onSelect?: (name: string) => void;
 };
 
 export default function MachineStatusCard({
@@ -13,6 +16,7 @@ export default function MachineStatusCard({
   status,
   remaining_time,
   next_model,
+  onSelect,
 }: MachineProps) {
   const statusConfig = {
     Normal: {
@@ -30,17 +34,28 @@ export default function MachineStatusCard({
   };
 
   return (
-    <div className="mt-28 p-4 rounded-xl bg-[#3b82f6] w-full">
+    <div className="mt-28 p-4 rounded-xl bg-[#586F97] w-full">
       <div className="p-6 bg-white rounded-sm shadow-md">
+        <div className="flex items-center justify-between">
+          <h1
+            className={clsx(
+              "text-2xl font-bold flex items-center gap-2",
+              statusConfig[status].color
+            )}
+          >
+            {machine_name} {statusConfig[status].icon}
+          </h1>
+          <button
+            aria-label="Play"
+            onClick={() => onSelect?.(machine_name)} 
+            className="p-2 rounded-full bg-gray-900 hover:bg-gray-700 text-white transition"
+          >
+            <GrPlay />
+          </button>
+        </div>
+
         <Machine />
-        <h1
-          className={clsx(
-            "text-2xl font-bold flex items-center gap-2",
-            statusConfig[status].color
-          )}
-        >
-          {machine_name} {statusConfig[status].icon}
-        </h1>
+
         <p className="text-black">
           <span className="font-semibold">Status:</span> {status}
         </p>

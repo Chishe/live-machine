@@ -9,17 +9,23 @@ export default function Machine() {
   const [materialColor, setMaterialColor] = useState("green");
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      const randomMaterial = Math.floor(Math.random() * 101);
-      const randomDeki = Math.floor(Math.random() * 101);
-      setMaterialLevel(randomMaterial);
-      setDekiLevel(randomDeki);
-
-      if (randomMaterial < 34) setMaterialColor("red");
-      else if (randomMaterial < 67) setMaterialColor("yellow");
-      else setMaterialColor("green");
-    }, 2000);
-
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/machine');
+        const data = await response.json();
+        if (data && data.length > 0) {
+          const { materialLevel, dekiLevel, materialColor } = data[0];
+          setMaterialLevel(materialLevel);
+          setDekiLevel(dekiLevel);
+          setMaterialColor(materialColor);
+        }
+      } catch (error) {
+        console.error("Error fetching data", error);
+      }
+    };
+  
+    fetchData();
+    const interval = setInterval(fetchData, 1200000);
     return () => clearInterval(interval);
   }, []);
 
@@ -59,7 +65,7 @@ export default function Machine() {
 
       {/* Deki Bar */}
       <div className="absolute right-4 bottom-14 text-sm text-black font-semibold">
-        Deki
+        Plan
       </div>
       <div className="absolute right-4 bottom-4 h-6 w-[150px] bg-gray-200 rounded overflow-hidden">
         <div

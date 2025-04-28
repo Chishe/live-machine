@@ -16,12 +16,12 @@ export default function MachineStatusList() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await axios.get("/api/machine-status");
+      const res = await axios.get("/api/machine");
       setData(res.data);
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 5000);
+    const interval = setInterval(fetchData, 1200000);
     return () => clearInterval(interval);
   }, []);
 

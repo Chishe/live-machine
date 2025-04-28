@@ -1,10 +1,20 @@
 "use client";
 import { toast, ToastContainer } from "react-toastify";
-import 'react-toastify/dist/ReactToastify.css';  // อย่าลืมนำเข้า CSS ด้วย
+import 'react-toastify/dist/ReactToastify.css';
 
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { supabase } from "@/utils/supabaseClient";
 import clsx from "clsx";
+type RawRow = {
+  mc: string;
+  mode: string;
+  date: string;
+  details: string;
+  plc: string;
+  continue: string;
+  loss: string;
+  action?: string;
+};
 
 type RowData = {
   process: string;
@@ -23,21 +33,26 @@ export default function NgTable() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get("/api/ng-status");
-      const rawData = res.data;
+      const { data: rawData, error } = await supabase
+        .from('ng_status')
+        .select('*');
 
-      const mappedData = rawData.map(
-        (row: any): RowData => ({
-          process: row.mc,
-          mode: row.mode,
-          date: parseThaiDateToISO(row.date),
-          details: row.details,
-          plc: row.plc,
-          continue: parseThaiDateToISO(row.continue),
-          loss: row.loss,
-          action: row.action,
-        })
-      );
+      if (error) {
+        console.error("Supabase fetch error", error);
+        setData([]);
+        return;
+      }
+
+      const mappedData = rawData.map((row: RawRow): RowData => ({
+        process: row.mc,
+        mode: row.mode,
+        date: parseThaiDateToISO(row.date),
+        details: row.details,
+        plc: row.plc,
+        continue: parseThaiDateToISO(row.continue),
+        loss: row.loss,
+        action: row.action,
+      }));
 
       setData(mappedData);
     } catch (err) {
@@ -69,32 +84,38 @@ export default function NgTable() {
     ? data.filter((row) => toDateOnly(row.date) === selectedDate)
     : data;
 
-    const handleInputChange = async (
-      idx: number,
-      field: "details" | "action",
-      value: string
-    ) => {
-      const newData = [...data];
-      const row = newData[idx];
-      row[field] = value;
-      setData(newData);
-    
-      try {
-        await axios.put("/api/ng-status/update", {
-          mc: row.process,
-          field,
-          value,
-        });
-        toast.success("Updated successfully"); 
-      } catch (err) {
-        console.error("Failed to update:", err);
+  const handleInputChange = async (
+    idx: number,
+    field: "details" | "action",
+    value: string
+  ) => {
+    const newData = [...data];
+    const row = newData[idx];
+    row[field] = value;
+    setData(newData);
+
+    try {
+      const { error } = await supabase
+        .from('ng_status')
+        .update({ [field]: value })
+        .match({ mc: row.process });
+
+      if (error) {
+        console.error("Failed to update:", error);
         toast.error("Update failed");
+      } else {
+        toast.success("Updated successfully");
+
+        fetchData();
       }
-    };
-    
-    
+    } catch (err) {
+      console.error("Failed to update:", err);
+      toast.error("Update failed");
+    }
+  };
+
   return (
-    <div className="rounded-xl bg-[#3b82f6]">
+    <div className="rounded-xl bg-[#586F97] w-full">
       <div className="mt-4 space-y-6 p-4">
         <div className="flex flex-row items-center justify-start mt-4 space-x-4">
           <h1 className="text-2xl font-bold text-center text-white">
@@ -177,7 +198,6 @@ export default function NgTable() {
       </div>
       <ToastContainer />
     </div>
-    
   );
 }
 

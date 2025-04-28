@@ -18,12 +18,12 @@ const API_OPTIONS = [
 ];
 
 function formatStagingStatus(process: string, rawStatus: string): string {
-  const trimmedStatus = rawStatus.trim(); // 🔧 แก้ตรงนี้
+  const trimmedStatus = rawStatus.trim();
   if (process === "Staging" && !isNaN(parseInt(trimmedStatus))) {
     const current = parseInt(trimmedStatus);
     const total = 20000;
     const percent = Math.floor((current / total) * 100);
-    return `Complete lot: ${percent}% (${current}/20000)`; // ✅ ตามที่ต้องการ
+    return `Complete lot: ${percent}% (${current}/20000)`;
   }
   return rawStatus;
 }
@@ -36,14 +36,13 @@ export default function LiveTable() {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 5000);
+    const interval = setInterval(fetchData, 120000);
     return () => clearInterval(interval);
   }, [apiUrl]);
   
   const fetchData = async () => {
     try {
       const res = await axios.get(apiUrl);
-      console.log("Fetched data:", res.data); // 🔍 log ค่า status ดูด้วย
       setData(res.data);
     } catch (err) {
       console.error("API fetch error", err);
@@ -54,12 +53,12 @@ export default function LiveTable() {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 5000);
+    const interval = setInterval(fetchData, 120000);
     return () => clearInterval(interval);
   }, [apiUrl]);
 
   return (
-    <div className="rounded-xl bg-[#3b82f6] p-4">
+    <div className="rounded-xl bg-[#586F97] p-4  w-full">
       {/* Header */}
       <div className="flex items-center justify-start mb-4">
         <h1 className="text-2xl font-bold text-white">Live Monitoring:</h1>

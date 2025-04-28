@@ -1,5 +1,7 @@
 import MachineStatusList from "@/components/MachineStatusList";
 import LiveTable from "@/components/LiveTable";
+import JobSequenceTable from "@/components/JobSequenceTable";
+
 import NgTable from "@/components/NgTable";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
@@ -15,6 +17,7 @@ export default function Home() {
         dark:[&::-webkit-scrollbar-thumb]:bg-[#aeaeb7]"
       >
         <MachineStatusList />
+        <JobSequenceTable />
         <LiveTable />
         <NgTable />
         <ToastContainer />
