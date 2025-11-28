@@ -33,25 +33,46 @@ import { NextResponse } from 'next/server';
 
 // Mock data
 const mockData = [
+  // {
+  //   id: 1,
+  //   process: "Meterial Insertion",
+  //   mode: "Andon NG",
+  //   status: "Remaining 54 mins",
+  //   created_at: "2025-04-23T15:26:21.971Z"
+  // },
+  // {
+  //   id: 2,
+  //   process: "Forming",
+  //   mode: "Normal",
+  //   status: "Alarm Code:XXXX",
+  //   created_at: "2025-04-23T15:26:21.971Z"
+  // },
+  // {
+  //   id: 3,
+  //   process: "Staging",
+  //   mode: "Normal",
+  //   status: "Complete lot: 60% (15000/20000)",
+  //   created_at: "2025-04-23T15:26:21.971Z"
+  // }
   {
     id: 1,
     process: "Meterial Insertion",
-    mode: "Andon NG",
-    status: "Remaining 54 mins",
+    mode: "Normal",
+    status: "Normal",
     created_at: "2025-04-23T15:26:21.971Z"
   },
   {
     id: 2,
     process: "Forming",
     mode: "Normal",
-    status: "Alarm Code:XXXX",
+    status: "Normal",
     created_at: "2025-04-23T15:26:21.971Z"
   },
   {
     id: 3,
     process: "Staging",
     mode: "Normal",
-    status: "Complete lot: 60% (15000/20000)",
+    status: "Normal",
     created_at: "2025-04-23T15:26:21.971Z"
   }
 ];

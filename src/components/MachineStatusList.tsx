@@ -30,7 +30,15 @@ export default function MachineStatusList() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
       {data.map((machine, idx) => (
-        <MachineStatusCard key={idx} {...machine} />
+        <MachineStatusCard
+          key={idx}
+          id={idx + 1}
+          machine_name={machine.machine_name}
+          status={machine.status}
+          initialRemainingTime={machine.remaining_time}
+          next_model={machine.next_model}
+          onSelect={(name) => console.log("Selected machine:", name)}
+        />
       ))}
     </div>
   );

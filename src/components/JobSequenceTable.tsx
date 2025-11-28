@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Image from 'next/image';
 
 interface JobSequenceRow {
   id: number;
@@ -67,27 +68,26 @@ export default function JobSequenceTable() {
       [field]: value,
     };
     setRows(updatedRows);
-
     const { error } = await supabase
-      .from("job_sequences")
-      .upsert([updatedRows[index]], { onConflict: ["id"] });
-
-    if (error) {
-      console.error("Error saving data:", error.message);
-      toast.error("Failed to save changes.");
-    } else {
-      fetchData();
-      toast.success("Changes saved successfully!");
-    }
+    .from("job_sequences")
+    .upsert([updatedRows[index]], { onConflict: "id" });
+  
+  if (error) {
+    console.error("Error saving data:", error.message);
+    toast.error("Failed to save changes.");
+  } else {
+    fetchData();
+    toast.success("Changes saved successfully!");
+  }
   };
 
 
   const openVideo = (sequence: number) => {
-    const videoUrl = sequence === 5 ? "/SIM.mp4" : "/some_video.mp4";
+    const videoUrl = sequence === 100 ? "/SIM.mp4" : "/sad.mp4";
     setVideoSrc(videoUrl);
     setShowVideo(true);
   };
-  
+
 
   const closeVideo = () => {
     setShowVideo(false);
@@ -216,12 +216,20 @@ export default function JobSequenceTable() {
             >
               ❌
             </button>
-            {/* Conditionally render video or image */}
             {videoSrc && videoSrc.endsWith('.jpg') ? (
-              <img src={videoSrc} alt="Full image" className="w-full h-auto rounded" />
+              <Image
+                src={videoSrc}
+                alt="Full image"
+                layout="responsive"
+                width={600}
+                height={400}
+                className="rounded"
+              />
             ) : (
               <video src={videoSrc} controls autoPlay className="w-full rounded-md" />
             )}
+
+
           </div>
         </div>
       )}

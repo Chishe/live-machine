@@ -48,7 +48,7 @@ const mockData = [
   {
     id: 2,
     machine_name: "Forming M/C #2",
-    mode: "Andon NG",
+    mode: "Normal",
     status: "Normal",
     remaining_time: "12:10",
     next_model: "BB"

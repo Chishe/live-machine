@@ -3,21 +3,29 @@ import { TiArrowSync } from "react-icons/ti";
 import { IoPlay } from "react-icons/io5";
 import { TbHandStop } from "react-icons/tb";
 
-export default function Machine() {
+type MachineProps = {
+  id: number;
+};
+
+export default function Machine({ id }: MachineProps) {
   const [materialLevel, setMaterialLevel] = useState(0);
   const [dekiLevel, setDekiLevel] = useState(0);
   const [materialColor, setMaterialColor] = useState("green");
-
+  console.log(id)
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch('/api/machine');
+        const response = await fetch(`/api/machine/${id}`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
         const data = await response.json();
-        if (data && data.length > 0) {
-          const { materialLevel, dekiLevel, materialColor } = data[0];
-          setMaterialLevel(materialLevel);
-          setDekiLevel(dekiLevel);
-          setMaterialColor(materialColor);
+        if (data) {
+          const { materialLevel, dekiLevel, materialColor } = data;
+          console.log(materialLevel, dekiLevel, materialColor);
+          setMaterialLevel(materialLevel ?? 0);
+          setDekiLevel(dekiLevel ?? 0);
+          setMaterialColor(materialColor ?? "green");
         }
       } catch (error) {
         console.error("Error fetching data", error);
@@ -27,8 +35,8 @@ export default function Machine() {
     fetchData();
     const interval = setInterval(fetchData, 1200000);
     return () => clearInterval(interval);
-  }, []);
-
+  }, [id]);
+  
   let CenterIcon = null;
   if (dekiLevel >= 90) {
     CenterIcon = <TiArrowSync size={64} className="text-blue-500" />;

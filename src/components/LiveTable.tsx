@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 import clsx from "clsx";
 
@@ -28,19 +28,12 @@ function formatStagingStatus(process: string, rawStatus: string): string {
   return rawStatus;
 }
 
-
-
 export default function LiveTable() {
   const [apiUrl, setApiUrl] = useState(API_OPTIONS[0].value);
   const [data, setData] = useState<RowData[]>([]);
 
-  useEffect(() => {
-    fetchData();
-    const interval = setInterval(fetchData, 120000);
-    return () => clearInterval(interval);
-  }, [apiUrl]);
-  
-  const fetchData = async () => {
+  // Memoize fetchData to avoid re-creating it on every render
+  const fetchData = useCallback(async () => {
     try {
       const res = await axios.get(apiUrl);
       setData(res.data);
@@ -48,17 +41,16 @@ export default function LiveTable() {
       console.error("API fetch error", err);
       setData([]);
     }
-  };
-  
+  }, [apiUrl]);
 
   useEffect(() => {
     fetchData();
     const interval = setInterval(fetchData, 120000);
     return () => clearInterval(interval);
-  }, [apiUrl]);
+  }, [apiUrl, fetchData]); // Add fetchData to the dependency array
 
   return (
-    <div className="rounded-xl bg-[#586F97] p-4  w-full">
+    <div className="rounded-xl bg-[#586F97] p-4 w-full">
       {/* Header */}
       <div className="flex items-center justify-start mb-4">
         <h1 className="text-2xl font-bold text-white">Live Monitoring:</h1>
@@ -93,13 +85,18 @@ export default function LiveTable() {
                   className={clsx("p-4 font-semibold", {
                     "text-red-500": row.mode === "Andon NG",
                     "text-green-500": row.mode === "Normal",
-                    "text-gray-500":
-                      row.mode !== "Normal" && row.mode !== "Andon NG",
+                    "text-gray-500": row.mode !== "Normal" && row.mode !== "Andon NG",
                   })}
                 >
                   {row.mode}
                 </td>
-                <td className="p-4">
+                <td
+                  className={clsx("p-4 font-semibold", {
+                    "text-red-500": row.status === "Andon NG",
+                    "text-green-500": row.status === "Normal",
+                    "text-gray-500": row.status !== "Normal" && row.status !== "Andon NG",
+                  })}
+                >
                   {formatStagingStatus(row.process, row.status)}
                 </td>
               </tr>

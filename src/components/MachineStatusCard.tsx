@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { CiFaceMeh, CiFaceSmile, CiFaceFrown } from "react-icons/ci";
 import { GrPlay } from "react-icons/gr";
 import clsx from "clsx";
@@ -6,19 +7,22 @@ import Machine from "./machine";
 type MachineProps = {
   machine_name: string;
   status: "Normal" | "Changeover" | "Abnormal";
-  remaining_time: string;
+  initialRemainingTime: string;
   next_model: string;
+  id: number;
   onSelect?: (name: string) => void;
 };
 
 export default function MachineStatusCard({
   machine_name,
   status,
-  remaining_time,
+  initialRemainingTime,
   next_model,
+  id,
   onSelect,
 }: MachineProps) {
   const statusConfig = {
+    
     Normal: {
       icon: <CiFaceSmile className="text-green-500 inline text-2xl" />,
       color: "text-green-700",
@@ -32,6 +36,42 @@ export default function MachineStatusCard({
       color: "text-red-700",
     },
   };
+
+  const [remainingTime, setRemainingTime] = useState<string>(initialRemainingTime);
+
+  const timeToSeconds = (time: string) => {
+    if (!time || time.split(":").length !== 3) return 0; 
+    const [hours, minutes, seconds] = time.split(":").map(Number);
+    return hours * 3600 + minutes * 60 + seconds;
+  };
+
+  const secondsToTime = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    return `${hrs} Hr ${mins} Min ${secs} Sec`;
+  };
+
+  useEffect(() => {
+    const initialSeconds = timeToSeconds(initialRemainingTime);
+    let remainingSeconds = initialSeconds;
+
+    if (id === 1) remainingSeconds = timeToSeconds("6:30:00");
+    if (id === 2) remainingSeconds = timeToSeconds("1:20:00");
+    if (id === 3) remainingSeconds = timeToSeconds("7:20:00");
+    if (id === 4) remainingSeconds = timeToSeconds("5:20:00");
+
+    const timer = setInterval(() => {
+      if (remainingSeconds > 0) {
+        remainingSeconds--;
+        setRemainingTime(secondsToTime(remainingSeconds));
+      } else {
+        clearInterval(timer);
+      }
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [id, initialRemainingTime]);
 
   return (
     <div className="mt-28 p-4 rounded-xl bg-[#586F97] w-full">
@@ -54,14 +94,14 @@ export default function MachineStatusCard({
           </button>
         </div>
 
-        <Machine />
+        <Machine id={id} />
 
         <p className="text-black">
           <span className="font-semibold">Status:</span> {status}
         </p>
         <p className="text-black">
           <span className="font-semibold">Remaining Time:</span>{" "}
-          {remaining_time}
+          {remainingTime}
         </p>
         <p className="text-black">
           <span className="font-semibold">Next:</span> Change to model{" "}

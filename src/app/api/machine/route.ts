@@ -36,10 +36,10 @@ const getMaterialInfo = (materialLevel: number) => {
 };
 
 const mockData = [
-  { id: 1, machine_name: "Forming M/C #1", mode: "Normal", remaining_time: "5:10:00", next_model: "+2HX,FRONT(IF)" },
-  { id: 2, machine_name: "Forming M/C #2", mode: "Andon NG", remaining_time: "3:25:00", next_model: "+D13L(IF),LHD" },
-  { id: 3, machine_name: "Forming M/C #3", mode: "Normal", remaining_time: "6:30:00", next_model: "+T00(IF)" },
-  { id: 4, machine_name: "Forming M/C #5", mode: "Normal", remaining_time: "7:20:00", next_model: "+YHAB(IF)" }
+  { id: 1, machine_name: "Forming M/C #1", mode: "Normal", remaining_time: "3:25:00", next_model: "TG447683-2260" },
+  { id: 2, machine_name: "Forming M/C #2", mode: "Normal", remaining_time: "5:10:00", next_model: "TG447683-2290" },
+  { id: 3, machine_name: "Forming M/C #3", mode: "Normal", remaining_time: "6:30:00", next_model: "TG447683-2290G" },
+  { id: 4, machine_name: "Forming M/C #5", mode: "Normal", remaining_time: "7:20:00", next_model: "TG447683-2290" }
 ];
 
 const formatRemainingTime = (timeStr: string) => {
@@ -47,10 +47,13 @@ const formatRemainingTime = (timeStr: string) => {
   return `${hr} Hr ${min} Min ${sec} Sec`;
 };
 
+
 export async function GET() {
   try {
+
+    ;
     const formatted = mockData.map((item) => {
-      const materialLevel = getRandomValue1();
+      const materialLevel = getRandomValue1()
       const dekiLevel = getRandomValue2();
       const { materialColor, status } = getMaterialInfo(materialLevel);
       const next_model = getRandomModel();
@@ -62,7 +65,8 @@ export async function GET() {
         dekiLevel,
         materialColor,
         status,
-        remaining_time: formattedRemainingTime
+        remaining_time: formattedRemainingTime,
+        next_model
       };
     });
 
